@@ -40,15 +40,16 @@ def main():
 	if sql:
 		df = pd.read_sql_query(sql, engine)
 		print 'processing...'
-		df.to_json(output, orient='records')
+		df.to_json(output, orient='records', force_ascii=False)
 
 	else:
 		for table in tables:
 			sql = 'select * from ' + table
 			df = pd.read_sql_query(sql, engine)
 			print 'processing...'
-			df.to_json(table + '.json', orient='records')
+			df.to_json(table + '.json', orient='records', force_ascii=False)
 
 
 if __name__ == '__main__':
+	# mongoimport --db world --collection info --type json info.json --jsonArray
 	main()
