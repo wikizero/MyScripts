@@ -4,6 +4,7 @@ import re
 import pandas as pd
 from collections import OrderedDict
 
+
 class MySQLHelper:
     def __init__(self):
         """
@@ -26,6 +27,20 @@ class MySQLHelper:
             return source.to_dict(orient='records')
         else:
             raise Exception('Data type is not supported')
+
+    @staticmethod
+    def execute_query(sql, engine):
+        db_name, con, cur = engine
+        cur.execute(sql)
+        result = cur.fetchall()
+        return result
+
+    @staticmethod
+    def execute_not_query(sql, engine):
+        db_name, con, cur = engine
+        cur.execute(sql)
+        con.commit()
+        return True
 
     @staticmethod
     def insert_many(table, source, engine, conflict=None, limit=10000, field_status=None):
@@ -115,6 +130,7 @@ if __name__ == '__main__':
             'reason': now,
         },
     ]
-    engine = MySQLHelper.create_engine('root:root@127.0.0.1:3306/blog')
+    engine = MySQLHelper.create_engine('root:root@127.0.0.1:3306/Jobs')
     # MySQLHelper.insert_many('blog_task', source, engine, conflict='replace')
     # MySQLHelper.update_many('blog_task', source, engine, condition=['id'], limit=1)
+    print MySQLHelper.execute_query('select count(*) from job', engine)[0][0]
