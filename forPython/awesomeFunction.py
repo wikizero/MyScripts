@@ -30,3 +30,16 @@ for i in izip_longest(*[iter([1, 2, 45, 7, 0, 9, 1, 5])]*3, fillvalue=''):
 # starmap  对序列seq的每个元素作为func的参数列表执行, 返回执行结果的迭代器
 for i in starmap(pow, [(2,2), (3, 2)]):  # 4, 9
     print i
+
+# 脚本性能分析 python -m cProfile my_script.py
+
+# 列表展平
+from compiler.ast import flatten
+from itertools import chain
+lst = [[1, 3], [2, 4], [4, 6]]
+print flatten(lst)
+print list(chain.from_iterable(lst))
+
+# 列表推导式、字典推导式、集合推导式、生成器表达式
+print {i for i in xrange(10)}
+print (i**2 for i in xrange(10))
