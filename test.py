@@ -8,6 +8,7 @@ import time
 # 连接池实现？
 # http://blog.csdn.net/kwsy2008/article/details/48372665
 
+
 class Tasks:
 	def __init__(self):
 		self.redis_connect = redis.Redis()

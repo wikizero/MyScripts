@@ -1,5 +1,6 @@
 # coding:utf-8
 import MySQLdb
+from MySQLdb.cursors import DictCursor
 import re
 import pandas as pd
 from collections import OrderedDict
@@ -16,7 +17,8 @@ class MySQLHelper:
     @staticmethod
     def create_engine(connect, charset='utf8'):
         user, password, host, port, db_name = re.split(r':|@|/', connect)
-        db_connect = MySQLdb.connect(user=user, host=host, passwd=password, db=db_name, charset=charset)
+        db_connect = MySQLdb.connect(user=user, host=host, passwd=password, db=db_name, charset=charset,
+                                     cursorclass=DictCursor)
         return db_name, db_connect, db_connect.cursor()
 
     @staticmethod
