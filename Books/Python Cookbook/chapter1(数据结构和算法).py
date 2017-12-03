@@ -2,6 +2,7 @@
 
 '''
 Python Cookbook version: 3
+# 在线书籍： http://python3-cookbook.readthedocs.io/zh_CN/latest/index.html
 
 '''
 
