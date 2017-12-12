@@ -10,29 +10,29 @@ import time
 
 
 class Tasks:
-	def __init__(self):
-		self.redis_connect = redis.Redis()
+    def __init__(self):
+        self.redis_connect = redis.Redis()
 
-	def push_task(self, key, tasks):
-		self.redis_connect.lpush(key, *tasks)  # 双端队列，左边推进任务
-		return self.get_len(key)
+    def push_task(self, key, tasks):
+        self.redis_connect.lpush(key, *tasks)  # 双端队列，左边推进任务
+        return self.get_len(key)
 
-	def pop_task(self, key, num=1):
-		return self.redis_connect.brpop(key), self.get_len(key)  # 双端队列 右边弹出
+    def pop_task(self, key, num=1):
+        return self.redis_connect.brpop(key), self.get_len(key)  # 双端队列 右边弹出
 
-	def get_len(self, key):
-		return self.redis_connect.llen(key)
+    def get_len(self, key):
+        return self.redis_connect.llen(key)
 
 
 if __name__ == '__main__':
-	task_obj = Tasks()
+    task_obj = Tasks()
 
-	# lst = ['task'+str(i) for i in xrange(1, 1001)]
-	# task_obj.push_task('task', lst)
+    # lst = ['task'+str(i) for i in xrange(1, 1001)]
+    # task_obj.push_task('task', lst)
 
-	while True:
-		print task_obj.pop_task('task')
-		time.sleep(1.5)
-	#
-	# print task_obj.get_len('task')
+    while True:
+        print task_obj.pop_task('task')
+        time.sleep(1.5)
+    #
+    # print task_obj.get_len('task')
 
