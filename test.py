@@ -23,7 +23,7 @@ class ExpandJsonEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 
-class Tasks:
+class RedisQueue:
     def __init__(self):
         self.redis_connect = redis.Redis()
 
@@ -61,16 +61,15 @@ class Tasks:
 
 
 if __name__ == '__main__':
-    task_obj = Tasks()
+    task_obj = RedisQueue()
 
+    # 把任务推入redis 队列
     lst = ['task'+str(i) for i in xrange(60, 150)]
     task_obj.push_task('task', lst, level=5)
 
+    # 从redis queue取出任务
     while True:
         print task_obj.pop_task('task')
         time.sleep(0.1)
 
-    # print task_obj.get_len('task')
-
-    # task_obj.pop_task('task')
 
