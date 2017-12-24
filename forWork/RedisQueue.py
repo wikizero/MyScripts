@@ -94,14 +94,14 @@ if __name__ == '__main__':
     task_obj = RedisQueue()
 
     # 把任务推入redis 队列
-    lst = [i for i in xrange(50, 400)]
-    # task_obj.redis_connect.sadd('task', *lst)
-    print task_obj.push_task('task', lst, repeat=False, level=9)
+    lst = [i for i in xrange(0, 100)]
+    print task_obj.push_task('task', lst, repeat=False, level=1)
 
     # 从redis queue取出任务
-    # while True:
-    #     print task_obj.pop_task('task')
-    #     time.sleep(0.1)
+    while True:
+        print task_obj.pop_task('task')
+        time.sleep(0.1)
 
+    # 查看任务数量以及优先级情况
     count, key_len = task_obj.get_len('task')
     print key_len
