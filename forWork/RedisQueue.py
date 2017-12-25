@@ -3,6 +3,7 @@ import redis
 import re
 import json
 import time
+from itertools import chain
 from datetime import datetime, date
 
 
@@ -10,9 +11,10 @@ from datetime import datetime, date
 #      方案：1、是否去重为可选参数；
 #           2、每次push任务的时候先set()去重；
 #           3、每次push任务把任务也同时添加redis中set的数据结构中
+#           4、pop出任务后同时需要从set结构中取出任务
 #  （2）获取任务数量                   Done
 #  （3）通过装饰器来实现队列任务
-#  （4）任务持久化（保存在硬盘？）
+#  （4）任务持久化（保存在硬盘？） Done  Redis本身支持数据持久化，只需重启Redis即可（supervisor管理）
 
 
 class ExpandJsonEncoder(json.JSONEncoder):
@@ -44,6 +46,7 @@ class RedisQueue:
     def get_keys(self, key):
         # redis中所有的键
         keys = self.redis_connect.keys()
+        print keys
         # 找出符合的键
         keys = [k for k in keys if re.match(key+'-\d+', k)]
         # 按优先级将键降序排序
@@ -79,14 +82,19 @@ class RedisQueue:
         self.redis_connect.lpush(new_key, *tasks)
         return self.get_len(key)
 
-    def pop_task(self, key, repeat=True, num=1):
+    def pop_task(self, keys=None, num=1):
+        '''
+        :param keys: 键列表，默认为None（将获取所有任务的keys）
+        :param num:
+        :return:
+        '''
         while True:
             # 双端队列 右边弹出任务
             # 小知识点：brpop() 接收两个参数，默认timeout为0，这样当队列为空会永远等下去
-            keys = self.get_keys(key)
-            if keys:
-                ret = self.redis_connect.brpop(keys)
-                return json.loads(ret[1])
+            all_keys = list(chain(*[self.get_keys(k) for k in keys]))  # 根据key作为关键字获取所有的键
+            if all_keys:
+                task_key, task = self.redis_connect.brpop(all_keys)
+                return task_key, json.loads(task)
             time.sleep(2)
 
 
@@ -94,14 +102,25 @@ if __name__ == '__main__':
     task_obj = RedisQueue()
 
     # 把任务推入redis 队列
-    lst = [i for i in xrange(0, 100)]
-    print task_obj.push_task('task', lst, repeat=False, level=1)
+    # lst = [i for i in xrange(1000, 4000)]
+    # print task_obj.push_task('WLT-DieId', lst, repeat=False, level=9)
 
     # 从redis queue取出任务
-    while True:
-        print task_obj.pop_task('task')
-        time.sleep(0.1)
+    # while True:
+    #     task_type, task = task_obj.pop_task(['WLT-DieId'])
+    #     if 'WLT-Param' in task_type:
+    #         print 'CatchParam...'
+    #     elif 'WLT-DieId' in task_type:
+    #         print 'CatchDieId'
+    #     elif 'other' in task_type:
+    #         print 'Do other things...'
+    #     print task_type, task
+    #     time.sleep(1)
 
     # 查看任务数量以及优先级情况
-    count, key_len = task_obj.get_len('task')
-    print key_len
+    # count, key_len = task_obj.get_len('task')
+    # print key_len
+
+    # （1）多种任务一个queue，一段时间段内只能跑一种任务；
+    # （2）不同任务可能运行环境不一样，如：无线终端使用的Chrome是48版本，但是泛网络的Chrome是62版本；或者跑Linux、Windows区别
+    # （3）由于不同任务的爬虫，抓取的页面不一致，切换任务的时候需要切换页面。
