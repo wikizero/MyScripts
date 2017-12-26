@@ -46,9 +46,8 @@ class RedisQueue:
     def get_keys(self, key):
         # redis中所有的键
         keys = self.redis_connect.keys()
-        print keys
         # 找出符合的键
-        keys = [k for k in keys if re.match(key+'-\d+', k)]
+        keys = [k for k in keys if re.match('^'+key+'-\d+', k)]
         # 按优先级将键降序排序
         keys = sorted(keys, key=lambda x: int(x.split('-')[-1]), reverse=True)
         return keys
@@ -82,7 +81,7 @@ class RedisQueue:
         self.redis_connect.lpush(new_key, *tasks)
         return self.get_len(key)
 
-    def pop_task(self, keys=None, num=1):
+    def pop_task(self, keys=None, priority=False, num=1):
         '''
         :param keys: 键列表，默认为None（将获取所有任务的keys）
         :param num:
@@ -91,7 +90,22 @@ class RedisQueue:
         while True:
             # 双端队列 右边弹出任务
             # 小知识点：brpop() 接收两个参数，默认timeout为0，这样当队列为空会永远等下去
-            all_keys = list(chain(*[self.get_keys(k) for k in keys]))  # 根据key作为关键字获取所有的键
+
+            # 避免在while循环中修改参数，将keys参数赋值到临时变量
+            temp_keys = keys
+
+            # 不指定keys，将获取所有任务
+            if not keys:
+                temp_keys = self.redis_connect.keys()
+                temp_keys = list(set([re.sub('-\d+$', '', k) for k in temp_keys if re.findall('\w+-\d+$', k)]))
+
+            # 根据key作为关键字获取所有的键
+            all_keys = list(chain(*[self.get_keys(k) for k in temp_keys]))
+
+            # 屏蔽任务差异性，只按优先级高到低弹出任务
+            if priority:
+                all_keys = sorted(all_keys, key=lambda x: int(x.split('-')[-1]), reverse=True)
+
             if all_keys:
                 task_key, task = self.redis_connect.brpop(all_keys)
                 return task_key, json.loads(task)
@@ -102,12 +116,12 @@ if __name__ == '__main__':
     task_obj = RedisQueue()
 
     # 把任务推入redis 队列
-    # lst = [i for i in xrange(1000, 4000)]
-    # print task_obj.push_task('WLT-DieId', lst, repeat=False, level=9)
+    # lst = [i for i in xrange(0, 40)]
+    # print task_obj.push_task('C', lst, repeat=False, level=5)
 
     # 从redis queue取出任务
     # while True:
-    #     task_type, task = task_obj.pop_task(['WLT-DieId'])
+    #     task_type, task = task_obj.pop_task(keys=['WLT-DieId'], priority=True)
     #     if 'WLT-Param' in task_type:
     #         print 'CatchParam...'
     #     elif 'WLT-DieId' in task_type:
