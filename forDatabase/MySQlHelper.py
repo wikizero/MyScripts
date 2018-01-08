@@ -3,7 +3,6 @@ import MySQLdb
 from MySQLdb.cursors import DictCursor
 import re
 import pandas as pd
-from collections import OrderedDict
 
 
 class MySQLHelper:
@@ -20,6 +19,15 @@ class MySQLHelper:
         db_connect = MySQLdb.connect(user=user, host=host, passwd=password, db=db_name, charset=charset,
                                      cursorclass=DictCursor)
         return db_name, db_connect, db_connect.cursor()
+
+    @staticmethod
+    def close_engine(engine):
+        db_name, con, cur = engine
+        try:
+            if cur: cur.close()
+            if con: con.close()
+        except Exception, e:
+            print e
 
     @staticmethod
     def source_analysis(source):
