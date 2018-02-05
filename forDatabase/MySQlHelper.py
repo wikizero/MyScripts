@@ -48,12 +48,12 @@ class MySQLHelper:
     @staticmethod
     def execute_not_query(sql, engine):
         db_name, con, cur = engine
-        cur.execute(sql)
+        effect_rows = cur.execute(sql)
         con.commit()
-        return True
+        return effect_rows
 
     @staticmethod
-    def insert_many(table, source, engine, conflict=None, limit=10000, field_status=None):
+    def insert_many(table, source, engine, conflict=None, limit=10000):
         db_name, con, cur = engine
 
         if conflict == 'replace':
@@ -66,28 +66,28 @@ class MySQLHelper:
             raise Exception('conflict is not supported, It just can be replace or ignore')
 
         source = MySQLHelper.source_analysis(source)
+        if not source:
+            return True
+
         fields = source[0].keys()
         values = [one.values() for one in source]
-
-        if field_status:
-            fields = map(field_status, fields)
 
         fields_str = ' (' + ','.join(fields) + ') '
         values_str = ' (' + ','.join(['%s']*len(fields)) + ') '
 
         sql = prefix + fields_str + 'values' + values_str
-        print sql
 
         for index in xrange(0, len(values), limit):
             insert_values = values[index:index+limit]
-            cur.executemany(sql, insert_values)
+            effect_rows = cur.executemany(sql, insert_values)
             con.commit()
-            print len(insert_values), ' rows affected'
+            msg = 'Insert {rows} into {table}, {effect_rows} rows effected'
+            print msg.format(rows=len(insert_values), table=table, effect_rows=effect_rows)
 
         return True
 
     @staticmethod
-    def update_many(table, source, engine, condition=[], limit=10000):
+    def update_many(table, source, engine, condition=None, limit=5000):
         """
         :param table: table name
         :param source: dict-list
@@ -106,18 +106,19 @@ class MySQLHelper:
         set_str = ','.join([c+'=%s' for c in set_columns])
         condition_str = ','.join([c+'=%s' for c in condition])
 
-        _source = [[dct[column] for column in columns] for dct in source]
+        values = [[dct[column] for column in columns] for dct in source]
         
-        sql = 'UPDATE ' + table + ' SET ' + set_str + ' where ' + condition_str
-        print sql
+        sql = 'UPDATE ' + table + ' SET ' + set_str + ' WHERE ' + condition_str
 
-        for index in xrange(0, len(_source), limit):
-            insert_values = _source[index:index+limit]
-            cur.executemany(sql, insert_values)
+        for index in xrange(0, len(values), limit):
+            insert_values = values[index:index+limit]
+            effect_rows = cur.executemany(sql, insert_values)
             con.commit()
-            print len(insert_values), ' rows affected'
+            msg = 'Insert {rows} into {table}, {effect_rows} rows effected'
+            print msg.format(rows=len(insert_values), table=table, effect_rows=effect_rows)
 
         return True
+
         
 if __name__ == '__main__':
     # how to use it in your work
