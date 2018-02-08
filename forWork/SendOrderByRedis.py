@@ -2,6 +2,7 @@
 import redis
 from pprint import pprint
 from datetime import datetime
+import json
 
 
 class SendOrderByRedis:
@@ -29,13 +30,14 @@ class SendOrderByRedis:
             self.order_cfg[order] = func
         return inner
 
-    def send(self, order):
+    def send(self, order, **params):
         '''
-        send the order to
+        send the order
         :param order:
         :return:
         '''
-        return self.public(self.channel, order)
+        msg = order + '&' + json.dumps(params)
+        return self.public(self.channel, msg)
 
     def start(self):
         print u'Registering the order...'
@@ -44,12 +46,18 @@ class SendOrderByRedis:
 
         while True:
             try:
-                types, channel, order = self.subscribe(self.channel)
+                types, channel, msg = self.subscribe(self.channel)
+                order, params_json = msg.split('&', 1)
+                params = json.loads(params_json) if params_json else None
+
                 print 'Received an order: {order}'.format(order=order)
                 if order not in self.order_cfg:
                     print u'Invalid order!'
-
-                self.order_cfg[order]()
+                else:
+                    if params:
+                        self.order_cfg[order](**params)
+                    else:
+                        self.order_cfg[order]()
 
             except Exception as e:
                 print e
