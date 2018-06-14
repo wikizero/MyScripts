@@ -23,8 +23,8 @@ class ExpandJsonEncoder(json.JSONEncoder):
 
 class MyRedisQueue:
 
-    def __init__(self):
-        self.redis_connect = redis.Redis()
+    def __init__(self, host=None, port=None):
+        self.redis_connect = redis.Redis(host=host, port=port)
 
     def get_len(self, key):
         keys = self.get_keys(key)
@@ -85,7 +85,7 @@ class MyRedisQueue:
             if all_keys:
                 task_key, task = self.redis_connect.brpop(all_keys)
                 return task_key, json.loads(task)
-            time.sleep(2)
+            time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -96,12 +96,14 @@ if __name__ == '__main__':
     # print mrq.push_task('C', lst, level=4)
 
     # 从redis queue取出任务
-    while True:
-        task_type, task = mrq.pop_task(keys=['A', 'B', 'C', 'D', 'E'], priority=True)
-        print task_type, task
-        time.sleep(1)
+    # while True:
+    #     task_type, task = mrq.pop_task(keys=['A', 'B', 'C', 'D', 'E'], priority=True)
+    #     print task_type, task
+    #     time.sleep(1)
 
     # 查看任务数量以及优先级情况
     # count, key_len = mrq.get_len('task')
     # print key_len
+
+
 

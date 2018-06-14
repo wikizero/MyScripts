@@ -58,8 +58,57 @@ def repeatedSubstringPattern(str):
     if not str:
         return False
 
+    # print (str + str)
     ss = (str + str)[1:-1]
-    print ss
+    # print ss
     return ss.find(str) != -1
 
 print repeatedSubstringPattern('abcabcabc')
+# abab abcabc aaa abcabcab
+
+# abab
+# abababab
+# bababa
+
+# abcabcd  str
+# abcabcdabcabcd  str + trs
+# bcabcdabcabc  ss
+ss = 'abcabcabc'
+# print re.findall(r'(.)\1*', ss)
+from string import uppercase
+def titleToNumber(s):
+        """
+        :type s: str
+        :rtype: int
+        """
+        s = reversed(s.upper())
+        print uppercase
+        dct = {v:k for k, v in enumerate(uppercase, start=1)}
+        return sum([(26**idx)*dct[i] for idx, i in enumerate(s)])
+
+# print titleToNumber('ZY')
+
+lst = [1, 2, 2, 2, 3, 4, 5]
+
+def removeElement(nums, val):
+        """
+        :type nums: List[int]
+        :type val: int
+        :rtype: int
+        """
+        ret = [i for i in nums if i != val]
+        return ret, len(ret)
+
+
+# print removeElement([3,2,2,3, 2, 3, 4, 5], 3)
+
+nums = [3, 2, 4]
+target = 6
+from copy import copy
+for idx, i in enumerate(nums):
+    ret = (target - i)
+    temp = copy(nums)
+    temp.pop(idx)
+    if ret in temp: 
+        return [idx, temp.index(ret) + 1] if ret == i else [idx, nums.index(ret)]
+

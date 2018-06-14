@@ -7,16 +7,6 @@ from itertools import chain
 from datetime import datetime, date
 
 
-#  （1）任务队列支持避免重复任务插入      Done
-#      方案：1、是否去重为可选参数；
-#           2、每次push任务的时候先set()去重；
-#           3、每次push任务把任务也同时添加redis中set的数据结构中
-#           4、pop出任务后同时需要从set结构中取出任务
-#  （2）获取任务数量                   Done
-#  （3）通过装饰器来实现队列任务
-#  （4）任务持久化（保存在硬盘？） Done  Redis本身支持数据持久化，只需重启Redis即可（supervisor管理）
-
-
 class ExpandJsonEncoder(json.JSONEncoder):
     '''
         采用json方式序列化传入的任务参数，而原生的json.dumps()方法不支持datetime、date
@@ -44,10 +34,13 @@ class RedisQueue:
         return task_len, key_len
 
     def get_keys(self, key):
-        # redis中所有的键
-        keys = self.redis_connect.keys()
-        # 找出符合的键
-        keys = [k for k in keys if re.match('^'+key+'-\d+', k)]
+        # # redis中所有的键
+        # keys = self.redis_connect.keys()
+        # # 找出符合的键
+        # keys = [k for k in keys if re.match('^'+key+'-\d+', k)]
+
+        keys = self.redis_connect.keys(key+'-[0-9]*')  # Redis的键支持模式匹配
+
         # 按优先级将键降序排序
         keys = sorted(keys, key=lambda x: int(x.split('-')[-1]), reverse=True)
         return keys

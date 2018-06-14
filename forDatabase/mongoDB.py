@@ -127,6 +127,9 @@ project = {
 module = {
     'name': '业务质量定界'
 }
-ret = db['base'].update({'_id': ObjectId('5b1531d6a473a47c20b54473'), 'version.name': 'v100R001C03'},
-                        {'$push': {'modules': module}})
-print ret
+# ret = db['base'].update({'_id': ObjectId('5b1531d6a473a47c20b54473'), 'version.name': 'v100R001C03'},
+#                         {'$push': {'modules': module}})
+# print ret
+lst = range(10)
+for i in range(0, len(lst), 2):
+    print lst[i:i+2]
