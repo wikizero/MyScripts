@@ -44,66 +44,25 @@ while n:
 
 print lst
 
-dct = {
-    'type': 'iptv',
-    'filter': {
-        'type': 'tv',
-        'nums': {
-            'num1': 90,
-            'num2': {
-                'n1': 1,
-                'n2': 2
-            }
-        }
-    },
-    'params': [
-        {
-            'opt': 'create'
-        },
-        {
-            'opt': [
-                {'n1': 1},
-                {'n2': 2}
-            ]
-        }
-    ]
-}
 
-{
-    'type': 'iptv',
-    'filter.type': 'tv',
-    'filter.nums': 90,
-    'params.0.opt': 'create',
-    'params.1.opt': 'modify',
-}
-from wrapcache import wrapcache
+from bisect import bisect_right
+
+nums1 = [1,2,3,0,0,0]
+nums2 = [2,5,6]
+m = 3
+n =3
+def merges(nums1, m, nums2, n):
+    """
+    :type nums1: List[int]
+    :type m: int
+    :type nums2: List[int]
+    :type n: int
+    :rtype: void Do not return anything, modify nums1 in-place instead.
+    """
+    nums1 = nums1[:m]
+    for i in nums2:
+        nums1.insert(bisect_right(nums1, i), i)
+    print nums1
 
 
-@wrapcache(timeout=10)
-def func(dct):
-    ret = {}
-    for k, v in dct.items():
-        k = str(k)
-        if isinstance(v, dict):
-            temp = {k+'.'+_k: _v for _k,  _v in func(v).items()}
-            ret.update(temp)
-        elif isinstance(v, list):
-            temp = {k+'.'+_k: _v for _k, _v in func(dict(enumerate(v))).items()}
-            ret.update(temp)
-        else:
-            ret[k] = v
-    return ret
-
-
-print func(dct)
-
-{
-    'params.1.opt.1.n2': 2,
-    'filter.nums.num2.n2': 2,
-    'params.0.opt': 'create',
-    'params.1.opt.0.n1': 1,
-    'type': 'iptv',
-    'filter.nums.num2.n1': 1,
-    'filter.nums.num1': 90,
-    'filter.type': 'tv'
-}
+print range(2, 2)
