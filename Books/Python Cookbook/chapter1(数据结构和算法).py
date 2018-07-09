@@ -9,7 +9,7 @@ Python Cookbook version: 3
 # (1) 解压赋值可以使用在任何可迭代的对象上，不仅限于列表，如：字符串、文件对象、迭代器、生成器等
 # 使用星号表达式减少变量 Python 3.0以上支持
 # grades = [1, 2, 3, 4, 5]
-# start, *ign, end = gra、des
+# start, *ign, end = grades
 
 # (2)deque 只保留有限的几个元素的历史记录
 from collections import deque
@@ -107,3 +107,9 @@ b = {'z': 4, 'w': 3}
 a.update(b)  # print a
 # 或者
 dict(a.items() + b.items())
+
+
+# (11) map 可以接无限个序列  有时可以替代zip()
+lst = [1, 4, 5, 7, 9, 12]
+print [i - j for i, j in zip(lst[1:], lst[:-1])]
+print map(lambda x, y, z, w: x - y - z + w, lst[1:], lst[:-1], lst[1:], lst[1:])
