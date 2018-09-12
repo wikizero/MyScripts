@@ -19,3 +19,5 @@ def func(nums):
 
 
 print func([0,4,2,1,4,-1,9])
+
+import numpy as np
