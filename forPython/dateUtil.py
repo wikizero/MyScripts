@@ -36,5 +36,5 @@ class DateUtil():
 
 if __name__ == '__main__':
     dt = DateUtil()
-    print dt.dt_range(start='2018-12-1 18:12:30', end='2018-12-1 20:12:30', freq='M', interval=10)
-    print dt.dt_add(start='2018-12-1 18:12:30', freq='H', interval=10)
+    print(dt.dt_range(start='2018-12-1 18:12:30', end='2018-12-1 20:12:30', freq='M', interval=10))
+    print(dt.dt_add(start='2018-12-1 18:12:30', freq='H', interval=10))

@@ -10,4 +10,4 @@ ret = []
 for k, v in groupby(enumerate(lst), key=lambda x: x[1] - x[0]):
     ret.append([i[1] for i in v])
 
-print ret
+print(ret)
